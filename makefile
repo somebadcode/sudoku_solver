@@ -1,7 +1,7 @@
 CC=gcc
-CFLAGS_COMMON=-Wall -Werror -pedantic -pedantic-errors --std=c11
+CFLAGS_COMMON=-Wall -pedantic -pedantic-errors --std=c11
 CFLAGS_DEBUG=-O0 -g3 $(CLFAGS_COMMON)
-CFLAGS_OPTIMAL=-O3 -mtune=native -fprefetch-loop-arrays
+CFLAGS_OPTIMAL=-O3 -mtune=native -Werror -fprefetch-loop-arrays
 CFLAGS=$(CFLAGS_OPTIMAL) $(CFLAGS_COMMON)
 SRCDIR=src
 INCLUDESDIR=src/includes
