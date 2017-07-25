@@ -1,4 +1,4 @@
-CC=gcc
+CC?=gcc
 CFLAGS_COMMON=-Wall -pedantic -pedantic-errors --std=c11
 CFLAGS_DEBUG=-O0 -g3 $(CLFAGS_COMMON)
 CFLAGS_OPTIMAL=-O3 -mtune=native -Werror -fprefetch-loop-arrays
@@ -7,10 +7,13 @@ SRCDIR=src
 INCLUDESDIR=src/includes
 BUILDDIR=build
 INCLUDES=-I$(INCLUDESDIR)
+MKDIR_P=mkdir -p
 OBJECTS=$(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(wildcard $(SRCDIR)/*.c))
 TARGET=sudoku
 
-MKDIR_P=mkdir -p
+ifeq ($(CC), clang)
+	CFLAGS:=$(filter-out -fprefetch-loop-arrays,$(CFLAGS))
+endif
 
 .PHONY: default all clean directories debug
 .PRECIOUS: $(TARGET) $(OBJECTS)
