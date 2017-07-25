@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include "sudoku.h"
 
+bool sudokuSolve(int board[][9]);
+bool sudokuPrintBoard(int board[][9]);
+static bool isValid(int board[][9]);
+
 bool sudokuPrintBoard(int board[][9]) {
     int i;
 
@@ -23,7 +27,7 @@ bool sudokuPrintBoard(int board[][9]) {
     return true;
 }
 
-static bool sudokuGetFreeCell(int board[][9], int *row, int *col) {
+static bool getFreeCell(int board[][9], int *row, int *col) {
     int i, j;
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 9; j++) {
@@ -37,15 +41,15 @@ static bool sudokuGetFreeCell(int board[][9], int *row, int *col) {
     return false;
 }
 
-static bool sudokuIsValid(int board[][9]) {
+static bool isValid(int board[][9]) {
     int row, col, boxrow, boxcol;
     short colmask, rowmask, boxmask;
     for (row = 0; row < 9; row++) {
         rowmask = 0;
         for (col = 0; col < 9; col++) {
 
-            /* Scan rows */
-            if (board[row][col] == 0) { continue; }
+            /* Validate rows */
+            if (!board[row][col]) { continue; }
             if (((1 << board[row][col]) & rowmask)) {
                 return false;
             } else {
@@ -56,14 +60,13 @@ static bool sudokuIsValid(int board[][9]) {
             if (row == 0) {
                 colmask = 0;
                 for (row = 0; row < 9; row++) {
-                    if (board[row][col] == 0) { continue; }
+                    if (!board[row][col]) { continue; }
                     if (((1 << board[row][col]) & colmask)) {
                         return false;
                     } else {
                         colmask = colmask | (1 << board[row][col]);
                     }
                 }
-                colmask = 0;
                 row = 0;
             } /* End of column validation */
 
@@ -72,10 +75,10 @@ static bool sudokuIsValid(int board[][9]) {
                 boxmask = 0;
                 for (boxrow = 0; boxrow < 3; boxrow++) {
                     for (boxcol = 0; boxcol < 3; boxcol++) {
-                        if (board[row+boxrow][col+boxcol] == 0) { continue; }
+                        if (!board[row+boxrow][col+boxcol]) { continue; }
                         if ((( 1 << board[row+boxrow][col+boxcol]) & boxmask)) {
                             return false;
-                        } else { 
+                        } else {
                             boxmask = boxmask | (1 << board[row+boxrow][col+boxcol]);
                         }
                     }
@@ -89,13 +92,13 @@ static bool sudokuIsValid(int board[][9]) {
 bool sudokuSolve(int board[][9]) {
     int trial, row, col;
 
-    if (!sudokuGetFreeCell(board, &row, &col)) {
-        return sudokuIsValid(board);
+    if (!getFreeCell(board, &row, &col)) {
+        return isValid(board);
     } else {
         for (trial = 1; trial <= 9; trial++) {
             board[row][col] = trial;
-            if(sudokuIsValid(board) == true) {
-                if(!sudokuSolve(board)) {
+            if (isValid(board)) {
+                if (!sudokuSolve(board)) {
                     board[row][col] = 0;
                 } else {
                     return true;
