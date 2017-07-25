@@ -10,22 +10,28 @@ INCLUDES=-I$(INCLUDESDIR)
 OBJECTS=$(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(wildcard $(SRCDIR)/*.c))
 TARGET=sudoku
 
-.PHONY: default all clean directories debug
+MKDIR_P=mkdir -p
 
-default: $(TARGET)
+.PHONY: default all clean directories debug
+.PRECIOUS: $(TARGET) $(OBJECTS)
+
+default: directories $(TARGET)
 all: default
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-.PRECIOUS: $(TARGET) $(OBJECTS)
-
 $(TARGET): $(OBJECTS)
 	$(CC) $(OBJECTS) $(CFLAGS) -o $@
 
+directories: ${BUILDDIR}
+
+${BUILDDIR}:
+	${MKDIR_P} ${BUILDDIR}
+
 debug: CFLAGS=$(CFLAGS_DEBUG) $(CFLAGS_COMMON)
-debug: default
+debug: all
 
 clean:
-	-rm -f $(BUILDDIR)/*
+	-rm -rf $(BUILDDIR)
 	-rm -f $(TARGET)
