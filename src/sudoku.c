@@ -4,6 +4,7 @@
 bool sudokuSolve(int board[][9]);
 bool sudokuPrintBoard(int board[][9]);
 static bool isValid(int board[][9]);
+static bool isCellValid(int board[][9], int row, int col);
 
 bool sudokuPrintBoard(int board[][9]) {
     int i;
@@ -39,6 +40,44 @@ static bool getFreeCell(int board[][9], int *row, int *col) {
         }
     }
     return false;
+}
+
+static bool isCellValid(int board[][9], int row, int col) {
+    int i, j;
+    short rowmask = 0;
+    short colmask = 0;
+    short boxmask = 0;
+
+    for (i = 0; i < 9; i++) {
+        if (board[row][i]) {
+            if (((1 << board[row][i]) & rowmask)) {
+                return false;
+            } else {
+                rowmask = rowmask | (1 << board[row][i]);
+            }
+        }
+        if (board[i][col]) {
+            if (((1 << board[i][col]) & colmask)) {
+                return false;
+            } else {
+                colmask = colmask | (1 << board[i][col]);
+            }
+        }
+    }
+    row = row - (row % 3);
+    col = col - (col % 3);
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            if (board[row+i][col+j]) {
+                if ((( 1 << board[row+i][col+j]) & boxmask)) {
+                    return false;
+                } else {
+                    boxmask = boxmask | (1 << board[row+i][col+j]);
+                }
+            }
+        }
+    }
+    return true;
 }
 
 static bool isValid(int board[][9]) {
@@ -97,7 +136,7 @@ bool sudokuSolve(int board[][9]) {
     } else {
         for (trial = 1; trial <= 9; trial++) {
             board[row][col] = trial;
-            if (isValid(board)) {
+            if (isCellValid(board, row, col)) {
                 if (!sudokuSolve(board)) {
                     board[row][col] = 0;
                 } else {
