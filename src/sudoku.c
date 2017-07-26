@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdbool.h>
+
 #include "sudoku.h"
 
 bool sudokuSolve(int board[][9]);
