@@ -50,35 +50,28 @@ static bool isCellValid(int board[][9], int row, int col) {
     int colbitfield = 0;
     int boxbitfield = 0;
 
+    /* Validate row and column in one sweep */
     for (i = 9; i--;) {
-        if (board[row][i]) {
-            if (((1 << board[row][i]) & rowbitfield)) {
-                return false;
-            } else {
-                rowbitfield = rowbitfield | (1 << board[row][i]);
-            }
+        if ((((1 << board[row][i]) &~1) & rowbitfield) \
+          || ((1 << board[i][col]) &~1) & colbitfield) {
+            return false;
         }
-        if (board[i][col]) {
-            if (((1 << board[i][col]) & colbitfield)) {
-                return false;
-            } else {
-                colbitfield = colbitfield | (1 << board[i][col]);
-            }
-        }
-    }
+        rowbitfield |= ((1 << board[row][i]) &~ 1);
+        colbitfield |= ((1 << board[i][col]) &~ 1);
+    } /* End of row & col validation */
+
+    /* Validate box */
     row = row - (row % 3);
     col = col - (col % 3);
     for (i = 3; i--;) {
         for (j = 3; j--;) {
-            if (board[row+i][col+j]) {
-                if ((( 1 << board[row+i][col+j]) & boxbitfield)) {
-                    return false;
-                } else {
-                    boxbitfield = boxbitfield | (1 << board[row+i][col+j]);
-                }
+            if (((( 1 << board[row+i][col+j]) &~ 1) & boxbitfield)) {
+                return false;
             }
+            boxbitfield |= ((1 << board[row+i][col+j]) &~ 1);
         }
-    }
+    } /* End of box validation */
+
     return true;
 }
 
