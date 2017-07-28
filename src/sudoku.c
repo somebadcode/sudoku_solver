@@ -32,8 +32,8 @@ bool sudokuPrintBoard(int board[][9]) {
 
 static bool getFreeCell(int board[][9], int *row, int *col) {
     int i, j;
-    for (i = 0; i < 9; i++) {
-        for (j = 0; j < 9; j++) {
+    for (i = 9; i--;) {
+        for (j = 9; j--;) {
             if (!board[i][j]) {
                 *row = i;
                 *col = j;
@@ -50,7 +50,7 @@ static bool isCellValid(int board[][9], int row, int col) {
     short colmask = 0;
     short boxmask = 0;
 
-    for (i = 0; i < 9; i++) {
+    for (i = 9; i--;) {
         if (board[row][i]) {
             if (((1 << board[row][i]) & rowmask)) {
                 return false;
@@ -68,8 +68,8 @@ static bool isCellValid(int board[][9], int row, int col) {
     }
     row = row - (row % 3);
     col = col - (col % 3);
-    for (i = 0; i < 3; i++) {
-        for (j = 0; j < 3; j++) {
+    for (i = 3; i--;) {
+        for (j = 3; j--;) {
             if (board[row+i][col+j]) {
                 if ((( 1 << board[row+i][col+j]) & boxmask)) {
                     return false;
@@ -85,9 +85,9 @@ static bool isCellValid(int board[][9], int row, int col) {
 static bool isValid(int board[][9]) {
     int row, col, boxrow, boxcol;
     short colmask, rowmask, boxmask;
-    for (row = 0; row < 9; row++) {
+    for (row = 9; row--;) {
         rowmask = 0;
-        for (col = 0; col < 9; col++) {
+        for (col = 9; col--;) {
 
             /* Validate rows */
             if (!board[row][col]) { continue; }
@@ -100,7 +100,7 @@ static bool isValid(int board[][9]) {
             /* If we're on the first row, validate columns while we're here. */
             if (row == 0) {
                 colmask = 0;
-                for (row = 0; row < 9; row++) {
+                for (row = 9; row--;) {
                     if (!board[row][col]) { continue; }
                     if (((1 << board[row][col]) & colmask)) {
                         return false;
@@ -114,8 +114,8 @@ static bool isValid(int board[][9]) {
             /* Validate each box */
             if (!(row % 3) && !(col % 3)) {
                 boxmask = 0;
-                for (boxrow = 0; boxrow < 3; boxrow++) {
-                    for (boxcol = 0; boxcol < 3; boxcol++) {
+                for (boxrow = 3; boxrow--;) {
+                    for (boxcol = 3; boxcol--;) {
                         if (!board[row+boxrow][col+boxcol]) { continue; }
                         if ((( 1 << board[row+boxrow][col+boxcol]) & boxmask)) {
                             return false;
