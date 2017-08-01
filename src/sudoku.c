@@ -46,18 +46,18 @@ static bool getFreeCell(int board[][9], int *row, int *col) {
 
 static bool isCellValid(int board[][9], int row, int col) {
     int i, j;
-    int rowbitfield = 0;
-    int colbitfield = 0;
-    int boxbitfield = 0;
+    int rowmask = 0;
+    int colmask = 0;
+    int boxmask = 0;
 
     /* Validate row and column in one sweep */
     for (i = 9; i--;) {
-        if ((((1 << board[row][i]) &~1) & rowbitfield) \
-          || ((1 << board[i][col]) &~1) & colbitfield) {
+        if ((((1 << board[row][i]) &~1) & rowmask) \
+          || ((1 << board[i][col]) &~1) & colmask) {
             return false;
         }
-        rowbitfield |= ((1 << board[row][i]) &~ 1);
-        colbitfield |= ((1 << board[i][col]) &~ 1);
+        rowmask |= ((1 << board[row][i]) &~ 1);
+        colmask |= ((1 << board[i][col]) &~ 1);
     } /* End of row & col validation */
 
     /* Validate box */
@@ -65,10 +65,10 @@ static bool isCellValid(int board[][9], int row, int col) {
     col = col - (col % 3);
     for (i = 3; i--;) {
         for (j = 3; j--;) {
-            if (((( 1 << board[row+i][col+j]) &~ 1) & boxbitfield)) {
+            if (((( 1 << board[row+i][col+j]) &~ 1) & boxmask)) {
                 return false;
             }
-            boxbitfield |= ((1 << board[row+i][col+j]) &~ 1);
+            boxmask |= ((1 << board[row+i][col+j]) &~ 1);
         }
     } /* End of box validation */
 
@@ -77,28 +77,28 @@ static bool isCellValid(int board[][9], int row, int col) {
 
 static bool isValid(int board[][9]) {
     int row, col, boxrow, boxcol;
-    int colbitfield, rowbitfield, boxbitfield;
+    int colmask, rowmask, boxmask;
     for (row = 9; row--;) {
-        rowbitfield = 0;
+        rowmask = 0;
         for (col = 9; col--;) {
 
             /* Validate rows */
             if (!board[row][col]) { continue; }
-            if (((1 << board[row][col]) & rowbitfield)) {
+            if (((1 << board[row][col]) & rowmask)) {
                 return false;
             } else {
-                rowbitfield = rowbitfield | (1 << board[row][col]);
+                rowmask = rowmask | (1 << board[row][col]);
             }
 
             /* If we're on the first row, validate columns while we're here. */
             if (row == 0) {
-                colbitfield = 0;
+                colmask = 0;
                 for (row = 9; row--;) {
                     if (!board[row][col]) { continue; }
-                    if (((1 << board[row][col]) & colbitfield)) {
+                    if (((1 << board[row][col]) & colmask)) {
                         return false;
                     } else {
-                        colbitfield = colbitfield | (1 << board[row][col]);
+                        colmask = colmask | (1 << board[row][col]);
                     }
                 }
                 row = 0;
@@ -106,14 +106,14 @@ static bool isValid(int board[][9]) {
 
             /* Validate each box */
             if (!(row % 3) && !(col % 3)) {
-                boxbitfield = 0;
+                boxmask = 0;
                 for (boxrow = 3; boxrow--;) {
                     for (boxcol = 3; boxcol--;) {
                         if (!board[row+boxrow][col+boxcol]) { continue; }
-                        if ((( 1 << board[row+boxrow][col+boxcol]) & boxbitfield)) {
+                        if ((( 1 << board[row+boxrow][col+boxcol]) & boxmask)) {
                             return false;
                         } else {
-                            boxbitfield = boxbitfield | (1 << board[row+boxrow][col+boxcol]);
+                            boxmask = boxmask | (1 << board[row+boxrow][col+boxcol]);
                         }
                     }
                 }
