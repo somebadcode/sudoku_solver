@@ -4,6 +4,7 @@ CFLAGS_DEBUG=-O0 -g3 $(CLFAGS_COMMON)
 CFLAGS_OPTIMAL=-O3 -mtune=native -Werror -fprefetch-loop-arrays
 CFLAGS=$(CFLAGS_OPTIMAL) $(CFLAGS_COMMON)
 SRCDIR=src
+LIBS=-ljansson
 INCLUDESDIR=src/includes
 BUILDDIR=build
 INCLUDES=-I$(INCLUDESDIR)
@@ -25,7 +26,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) $(CFLAGS) -o $@
+	$(CC) $(OBJECTS) $(CFLAGS) $(LIBS) -o $@
 
 directories: ${BUILDDIR}
 
