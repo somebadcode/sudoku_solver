@@ -1,19 +1,16 @@
-CC?=gcc
-CFLAGS_COMMON=-Wall -pedantic -pedantic-errors --std=c11
+CC?=cc
+CFLAGS_COMMON=-Wall -Wextra -pedantic -pedantic-errors --std=c11
 CFLAGS_DEBUG=-O0 -g3 $(CLFAGS_COMMON)
-CFLAGS_OPTIMAL=-O3 -mtune=native -Werror -fprefetch-loop-arrays
+CFLAGS_OPTIMAL=-O3 -mtune=native -flto
 CFLAGS=$(CFLAGS_OPTIMAL) $(CFLAGS_COMMON)
 SRCDIR=src
-LIBS=-ljansson
-INCLUDESDIR=src/includes
 BUILDDIR=build
-INCLUDES=-I$(INCLUDESDIR)
-MKDIR_P=mkdir -p
+BINDIR=bin
 OBJECTS=$(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(wildcard $(SRCDIR)/*.c))
 TARGET=sudoku
 
 ifeq ($(CC), clang)
-	CFLAGS:=$(filter-out -fprefetch-loop-arrays,$(CFLAGS))
+	CFLAGS+=-Weverything
 endif
 
 .PHONY: default all clean directories debug
@@ -23,19 +20,21 @@ default: directories $(TARGET)
 all: default
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) $(CFLAGS) $(LIBS) -o $@
+	$(CC) $(OBJECTS) $(CFLAGS) $(LIBS) -o ${BINDIR}/$@
 
-directories: ${BUILDDIR}
+directories: $(BUILDDIR) $(BINDIR)
 
-${BUILDDIR}:
-	${MKDIR_P} ${BUILDDIR}
+$(BUILDDIR):
+	@mkdir --parent ${BUILDDIR}
+
+$(BINDIR):
+	@mkdir --parent ${BINDIR}
 
 debug: CFLAGS=$(CFLAGS_DEBUG) $(CFLAGS_COMMON)
 debug: all
 
 clean:
-	-rm -rf $(BUILDDIR)
-	-rm -f $(TARGET)
+	@rm --recursive --force $(BUILDDIR) $(BINDIR)

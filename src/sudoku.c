@@ -1,79 +1,89 @@
-#include <stdio.h>
 #include <stdbool.h>
-#include <jansson.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "sudoku.h"
 
-char boardplan[] = { "╔═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╗\n"
-                     "║   │   │   ║   │   │   ║   │   │   ║\n"
-                     "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
-                     "║   │   │   ║   │   │   ║   │   │   ║\n"
-                     "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
-                     "║   │   │   ║   │   │   ║   │   │   ║\n"
-                     "╠═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╣\n"
-                     "║   │   │   ║   │   │   ║   │   │   ║\n"
-                     "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
-                     "║   │   │   ║   │   │   ║   │   │   ║\n"
-                     "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
-                     "║   │   │   ║   │   │   ║   │   │   ║\n"
-                     "╠═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╣\n"
-                     "║   │   │   ║   │   │   ║   │   │   ║\n"
-                     "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
-                     "║   │   │   ║   │   │   ║   │   │   ║\n"
-                     "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
-                     "║   │   │   ║   │   │   ║   │   │   ║\n"
-                     "╚═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╝\n" };
+static char boardBox[] = { "╔═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╗\n"
+                           "║   │   │   ║   │   │   ║   │   │   ║\n"
+                           "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
+                           "║   │   │   ║   │   │   ║   │   │   ║\n"
+                           "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
+                           "║   │   │   ║   │   │   ║   │   │   ║\n"
+                           "╠═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╣\n"
+                           "║   │   │   ║   │   │   ║   │   │   ║\n"
+                           "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
+                           "║   │   │   ║   │   │   ║   │   │   ║\n"
+                           "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
+                           "║   │   │   ║   │   │   ║   │   │   ║\n"
+                           "╠═══╪═══╪═══╬═══╪═══╪═══╬═══╪═══╪═══╣\n"
+                           "║   │   │   ║   │   │   ║   │   │   ║\n"
+                           "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
+                           "║   │   │   ║   │   │   ║   │   │   ║\n"
+                           "╟───┼───┼───╫───┼───┼───╫───┼───┼───╢\n"
+                           "║   │   │   ║   │   │   ║   │   │   ║\n"
+                           "╚═══╧═══╧═══╩═══╧═══╧═══╩═══╧═══╧═══╝\n" };
 
-bool sudokuSolve(int board[][9]);
-bool sudokuPrintBoard(int board[][9]);
-json_t* sudokuGetBoardJson(int board[][9]);
-static bool isValid(int board[][9]);
-static bool isCellValid(int board[][9], int row, int col);
+static char boardCSV[] = { " , , , , , , , , \n"
+                           " , , , , , , , , \n"
+                           " , , , , , , , , \n"
+                           " , , , , , , , , \n"
+                           " , , , , , , , , \n"
+                           " , , , , , , , , \n"
+                           " , , , , , , , , \n"
+                           " , , , , , , , , \n"
+                           " , , , , , , , , \n" };
 
-bool sudokuPrintBoard(int board[][9]) {
-    int i;
+static bool getFreeCell(int board[9][9], int *row, int *col);
+static bool isCellValid(int board[9][9], int row, int col);
+static bool isValid(int board[9][9]);
 
-    for (i = 9; i--;) {
-        boardplan[111+170*i+5] = (char)(board[i][0] + (int)'0');
-        boardplan[111+170*i+11] = (char)(board[i][1] + (int)'0');
-        boardplan[111+170*i+17] = (char)(board[i][2] + (int)'0');
-        boardplan[111+170*i+23] = (char)(board[i][3] + (int)'0');
-        boardplan[111+170*i+29] = (char)(board[i][4] + (int)'0');
-        boardplan[111+170*i+35] = (char)(board[i][5] + (int)'0');
-        boardplan[111+170*i+41] = (char)(board[i][6] + (int)'0');
-        boardplan[111+170*i+47] = (char)(board[i][7] + (int)'0');
-        boardplan[111+170*i+53] = (char)(board[i][8] + (int)'0');
-    }
-	puts(boardplan);
-
-    return true;
-}
-
-json_t* sudokuGetBoardJson(int board[][9]) {
-    json_t *json_arrA;
-    json_t *json_arrB;
-    int i;
-
-    json_arrA = json_array();
-
-    for (i = 0; i < 9; i++) {
-        json_arrB = json_array();
-        json_array_append_new(json_arrB, json_integer(board[i][0]));
-        json_array_append_new(json_arrB, json_integer(board[i][1]));
-        json_array_append_new(json_arrB, json_integer(board[i][2]));
-        json_array_append_new(json_arrB, json_integer(board[i][3]));
-        json_array_append_new(json_arrB, json_integer(board[i][4]));
-        json_array_append_new(json_arrB, json_integer(board[i][5]));
-        json_array_append_new(json_arrB, json_integer(board[i][6]));
-        json_array_append_new(json_arrB, json_integer(board[i][7]));
-        json_array_append_new(json_arrB, json_integer(board[i][8]));
-        json_array_append_new(json_arrA, json_arrB);
+char *sudokuGetBoardBox(int board[9][9]) {
+    char *box = malloc(sizeof(boardBox));
+    if (box == NULL) {
+        return NULL;
     }
 
-    return json_arrA;
+    strcpy(box, boardBox);
+
+    for (int i = 9; i--;) {
+        box[111+170*i+5] = (char)(board[i][0] + (int)'0');
+        box[111+170*i+11] = (char)(board[i][1] + (int)'0');
+        box[111+170*i+17] = (char)(board[i][2] + (int)'0');
+        box[111+170*i+23] = (char)(board[i][3] + (int)'0');
+        box[111+170*i+29] = (char)(board[i][4] + (int)'0');
+        box[111+170*i+35] = (char)(board[i][5] + (int)'0');
+        box[111+170*i+41] = (char)(board[i][6] + (int)'0');
+        box[111+170*i+47] = (char)(board[i][7] + (int)'0');
+        box[111+170*i+53] = (char)(board[i][8] + (int)'0');
+    }
+    return box;
 }
 
-static bool getFreeCell(int board[][9], int *row, int *col) {
+char *sudokuGetBoardCSV(int board[9][9]) {
+    char *box = malloc(sizeof(boardCSV));
+    if (box == NULL) {
+        return NULL;
+    }
+
+    strcpy(box, boardCSV);
+
+    for (int i = 9; i--;) {
+        box[0+i*18] = (char)(board[i][0] + (int)'0');
+        box[1+i*18+1] = (char)(board[i][1] + (int)'0');
+        box[2+i*18+2] = (char)(board[i][2] + (int)'0');
+        box[3+i*18+3] = (char)(board[i][3] + (int)'0');
+        box[4+i*18+4] = (char)(board[i][4] + (int)'0');
+        box[5+i*18+5] = (char)(board[i][5] + (int)'0');
+        box[6+i*18+6] = (char)(board[i][6] + (int)'0');
+        box[7+i*18+7] = (char)(board[i][7] + (int)'0');
+        box[8+i*18+8] = (char)(board[i][8] + (int)'0');
+    }
+    return box;
+}
+
+static bool getFreeCell(int board[9][9], int *row, int *col) {
     int i, j;
     for (i = 9; i--;) {
         for (j = 9; j--;) {
@@ -87,7 +97,7 @@ static bool getFreeCell(int board[][9], int *row, int *col) {
     return false;
 }
 
-static bool isCellValid(int board[][9], int row, int col) {
+static bool isCellValid(int board[9][9], int row, int col) {
     int i, j;
     int rowmask = 0;
     int colmask = 0;
@@ -118,7 +128,7 @@ static bool isCellValid(int board[][9], int row, int col) {
     return true;
 }
 
-static bool isValid(int board[][9]) {
+static bool isValid(int board[9][9]) {
     int row, col, boxrow, boxcol;
     int colmask, rowmask, boxmask;
     for (row = 9; row--;) {
@@ -166,7 +176,7 @@ static bool isValid(int board[][9]) {
     return true;
 }
 
-bool sudokuSolve(int board[][9]) {
+bool sudokuSolve(int board[9][9]) {
     int trial, row, col;
 
     if (!getFreeCell(board, &row, &col)) {
