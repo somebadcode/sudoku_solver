@@ -67,7 +67,7 @@ const char *parse_csv(FILE *fp, int board[9][9], unsigned long *position, int co
 
             // If the token is empty, let's make it 0.
             if (strlen(token) == 0) {
-                board[x][y] = 0;
+                board[y][x] = 0;
                 continue;
             }
 
@@ -86,7 +86,7 @@ const char *parse_csv(FILE *fp, int board[9][9], unsigned long *position, int co
             }
 
             // Store the number.
-            board[x][y] = (int)num;
+            board[y][x] = (int)num;
 
             // Advance position up to the end of the token so that we can use
             // it after parsing the last field to see if we reached the end
