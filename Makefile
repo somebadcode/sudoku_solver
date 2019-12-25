@@ -9,10 +9,6 @@ BINDIR=bin
 OBJECTS=$(patsubst $(SRCDIR)/%.c, $(BUILDDIR)/%.o, $(wildcard $(SRCDIR)/*.c))
 TARGET=sudoku
 
-ifeq ($(CC), clang)
-	CFLAGS+=-Weverything
-endif
-
 .PHONY: default all clean directories debug
 .PRECIOUS: $(TARGET) $(OBJECTS)
 

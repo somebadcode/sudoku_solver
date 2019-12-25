@@ -22,9 +22,7 @@ will be in `bin/`.
 * GCC C compiler 9.2.1 or later
 * Clang 9.0.0 or later
 
-Keep in mind that I focus on keeping it C11 compliant. The Makefile will use
-`-Weverything` when using `clang` which can result in warnings about header
-files provided by the system.
+Keep in mind that I focus on keeping it C11 compliant.
 
 ## Contribute
 Feel free to contribute or come with suggestions that can improve the code but
