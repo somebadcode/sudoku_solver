@@ -7,8 +7,6 @@
 #include "parse_csv.h"
 #include "sudoku.h"
 
-extern int errno;
-
 int main(int argc, char *argv[]) {
     FILE *fp;
     int board[9][9];
