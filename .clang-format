@@ -8,3 +8,4 @@ AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 ReflowComments: true
 SortIncludes: true
+ColumnLimit: 100
