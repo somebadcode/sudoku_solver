@@ -30,7 +30,7 @@ csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position, int coor
 
     int err = fseek(fp, 0L, SEEK_END);
     if (err != 0) {
-        outcome = CSV_ERROR_SEEK;
+        outcome = CSV_ERROR_FSEEK;
         goto cleanup;
     }
 
@@ -39,7 +39,7 @@ csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position, int coor
     rewind(fp);
 
     if (size > CSV_MAX_INPUT_SIZE) {
-        outcome = CSV_ERROR_INPUT_LARGE;
+        outcome = CSV_ERROR_INPUT_TOO_LARGE;
         goto cleanup;
     } else if (size == 0) {
         outcome = CSV_ERROR_INPUT_EMPTY;
@@ -48,13 +48,13 @@ csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position, int coor
 
     buffer = calloc(1, size + 1);
     if (buffer == NULL) {
-        outcome = CSV_ERROR_MEMORY;
+        outcome = CSV_ERROR_MEMORY_ALLOCATION;
         goto cleanup;
     }
 
     size_t readsz = fread(buffer, 1, size, fp);
     if (readsz != size) {
-       outcome = CSV_ERROR_READ_SIZE;
+       outcome = CSV_ERROR_FREAD_SIZE_MISMATCH;
        goto cleanup;
     }
 
@@ -65,7 +65,7 @@ csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position, int coor
         for (int x = 0; x < 9; x++) {
             coords[0] = x; coords[1] = y;
             if (token == NULL) {
-                outcome = CSV_ERROR_END;
+                outcome = CSV_ERROR_UNEXPECTED_EOF;
                 goto cleanup;
             }
 
@@ -85,13 +85,13 @@ csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position, int coor
             char *endptr;
             long int num = strtol(token, &endptr, 10);
             if (!isonlyspace(endptr)) {
-                outcome = CSV_ERROR_CONVERSION;
+                outcome = CSV_ERROR_INTEGER_CONVERSION;
                 goto cleanup;
             }
 
             // Make sure it's within the valid range.
             if (num < 0 || num > 9) {
-                outcome = CSV_ERROR_RANGE;
+                outcome = CSV_ERROR_INTEGER_OUT_OF_RANGE;
                 goto cleanup;
             }
 
@@ -115,7 +115,7 @@ csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position, int coor
     // the user assume that the input is correct. This error can be ignored by
     // the caller.
     if (!isonlyspace(buffer + *position + 1)) {
-        outcome = CSV_ERROR_TRAILING_DATA;
+        outcome = CSV_ERROR_INPUT_TRAILING_DATA;
     }
 
     // Clean up and return outcome;
