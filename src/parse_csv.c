@@ -8,8 +8,6 @@
 
 #define MAX_INPUT_SIZE 4095
 
-extern int errno;
-
 static const char *ERR_CONVERSION_ERROR = "invalid token, expected an integer but got something else";
 static const char *ERR_ERANGE = "integer out of range, expected 0 <= i <= 9";
 static const char *ERR_INPUT_EMPTY = "input is empty";
