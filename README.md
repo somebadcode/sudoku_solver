@@ -28,3 +28,8 @@ Keep in mind that I focus on keeping it C11 compliant.
 Feel free to contribute or come with suggestions that can improve the code but
 I will try to keep it simple enough that others can learn from this just like
 I created this to teach myself C.
+
+The code should be formatted the same way through the whole project and since
+no particular style is everybody's favorite I've chosen to pick a style similar
+to the Linux kernel source code. To make this whole thing easier and consistent,
+I've picked clang-format to do the job (`make format`).

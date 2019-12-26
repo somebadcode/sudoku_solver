@@ -15,7 +15,7 @@ ifeq ($(CC), cc)
 	CFLAGS+= -fstack-clash-protection
 endif
 
-.PHONY: default all clean debug
+.PHONY: default all clean debug format
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 default: $(TARGET)
@@ -35,6 +35,10 @@ $(BINDIR):
 
 debug: CFLAGS=$(CFLAGS_DEBUG) $(CFLAGS_COMMON)
 debug: all
+
+format:
+	@clang-format --verbose -i $(SRCDIR)/*.c
+	@clang-format --verbose -i $(SRCDIR)/*.h
 
 clean:
 	@rm --recursive --force $(BUILDDIR) $(BINDIR)

@@ -13,7 +13,7 @@ static void string_tolower(char *str);
 
 void parse_args(parsed_args *pargs, int argc, char *argv[])
 {
-	pargs->args = calloc((unsigned long)argc, sizeof(char *));
+	pargs->args  = calloc((unsigned long)argc, sizeof(char *));
 	pargs->count = 0;
 
 	if (pargs->args == NULL) {
