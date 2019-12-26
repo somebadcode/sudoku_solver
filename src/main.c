@@ -42,8 +42,7 @@ int main(int argc, char *argv[])
 			if (fp != stderr) {
 				fclose(fp);
 			}
-			fprintf(stderr, "error while parsing CSV: %s\n",
-				get_csv_error(csverr));
+			fprintf(stderr, "error while parsing CSV: %s\n", get_csv_error(csverr));
 			free(pargs.args);
 			return 1;
 		}

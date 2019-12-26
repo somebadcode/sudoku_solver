@@ -17,8 +17,7 @@ void parse_args(parsed_args *pargs, int argc, char *argv[])
 	pargs->count = 0;
 
 	if (pargs->args == NULL) {
-		fprintf(stderr, "failed to allocate memeory: %s\n",
-			strerror(errno));
+		fprintf(stderr, "failed to allocate memeory: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -34,8 +33,7 @@ void parse_args(parsed_args *pargs, int argc, char *argv[])
 			if (strcmp("--output", argv[i]) == 0) {
 				set_output_format(pargs, argv[i]);
 			} else if (has_prefix("--output=", argv[i])) {
-				set_output_format(pargs,
-						  strstr(argv[i], "=") + 1);
+				set_output_format(pargs, strstr(argv[i], "=") + 1);
 			}
 		} else if (has_prefix("-", argv[i]) && strlen(argv[i]) > 1) {
 			int x = i;
@@ -43,9 +41,7 @@ void parse_args(parsed_args *pargs, int argc, char *argv[])
 				if (argv[x][y] == 'o') {
 					set_output_format(pargs, argv[++i]);
 				} else {
-					fprintf(stderr,
-						"unrecognized flag '%c'\n",
-						argv[i][y]);
+					fprintf(stderr, "unrecognized flag '%c'\n", argv[i][y]);
 					exit(EXIT_FAILURE);
 				}
 			}

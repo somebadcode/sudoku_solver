@@ -158,13 +158,10 @@ static bool isValid(int board[9][9])
 					if (!board[row][col]) {
 						continue;
 					}
-					if (((1 << board[row][col]) &
-					     colmask)) {
+					if (((1 << board[row][col]) & colmask)) {
 						return false;
 					} else {
-						colmask =
-						    colmask |
-						    (1 << board[row][col]);
+						colmask = colmask | (1 << board[row][col]);
 					}
 				}
 				row = 0;
@@ -175,23 +172,17 @@ static bool isValid(int board[9][9])
 				boxmask = 0;
 				for (boxrow = 3; boxrow--;) {
 					for (boxcol = 3; boxcol--;) {
-						if (!board[row + boxrow]
-							  [col + boxcol]) {
+						if (!board[row + boxrow][col + boxcol]) {
 							continue;
 						}
-						if (((1
-						      << board[row + boxrow]
-							      [col + boxcol]) &
+						if (((1 << board[row + boxrow][col + boxcol]) &
 						     boxmask)) {
 							return false;
 						} else {
 							boxmask =
 							    boxmask |
 							    (1
-							     << board[row +
-								      boxrow]
-								     [col +
-								      boxcol]);
+							     << board[row + boxrow][col + boxcol]);
 						}
 					}
 				}

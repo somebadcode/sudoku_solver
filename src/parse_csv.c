@@ -21,8 +21,7 @@ static inline bool isonlyspace(char *str)
 	return true;
 }
 
-csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position,
-		    int coords[2])
+csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position, int coords[2])
 {
 	char *	  buffer  = NULL;
 	csv_error outcome = CSV_SUCCESS;
@@ -102,8 +101,7 @@ csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position,
 			// we can use it after parsing the last field to see if
 			// we reached the end of the input or if there's more
 			// trailing data.
-			*position = (unsigned long)(token - buffer) +
-				    (unsigned long)strlen(token);
+			*position = (unsigned long)(token - buffer) + (unsigned long)strlen(token);
 
 			// Advance the token but make it NULL if end is NULL.
 			token = end;
