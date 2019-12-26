@@ -6,15 +6,13 @@
 
 #include "parse_csv.h"
 
-#define MAX_INPUT_SIZE 4095
+static const char *csv_error_string[] = {
+    FOREACH_CSVERROR(GENERATE_STRING)
+};
 
-static const char *ERR_CONVERSION_ERROR = "invalid token, expected an integer but got something else";
-static const char *ERR_ERANGE = "integer out of range, expected 0 <= i <= 9";
-static const char *ERR_INPUT_EMPTY = "input is empty";
-static const char *ERR_INPUT_TOO_LARGE = "input is too large (size > 4095)";
-static const char *ERR_MEMORY = "memory allocation failed, unable to parse CSV";
-static const char *ERR_TRAILING_DATA = "unexpected trailing data in file, please make sure that there's no data after the table";
-static const char *ERR_UNEXPECTED_END = "unexpected end of CSV";
+const char *get_csv_error(csv_error err) {
+    return csv_error_string[err];
+}
 
 static inline bool isonlyspace(char *str) {
     while(*str != '\0') {
@@ -26,25 +24,39 @@ static inline bool isonlyspace(char *str) {
     return true;
 }
 
-const char *parse_csv(FILE *fp, int board[9][9], unsigned long *position, int coords[2]) {
-    char *buffer;
+csv_error parse_csv(FILE *fp, int board[9][9], unsigned long *position, int coords[2]) {
+    char *buffer = NULL;
+    csv_error outcome = CSV_SUCCESS;
 
     int err = fseek(fp, 0L, SEEK_END);
     if (err != 0) {
-        return strerror(1);
+        outcome = CSV_ERROR_SEEK;
+        goto cleanup;
     }
 
     // Get offset and rewind.
     size_t size = (size_t)ftell(fp);
     rewind(fp);
 
-    if (size > MAX_INPUT_SIZE) return ERR_INPUT_TOO_LARGE;
-    if (size == 0) return ERR_INPUT_EMPTY;
+    if (size > CSV_MAX_INPUT_SIZE) {
+        outcome = CSV_ERROR_INPUT_LARGE;
+        goto cleanup;
+    } else if (size == 0) {
+        outcome = CSV_ERROR_INPUT_EMPTY;
+        goto cleanup;
+    }
 
     buffer = calloc(1, size + 1);
-    if (buffer == NULL) return ERR_MEMORY;
+    if (buffer == NULL) {
+        outcome = CSV_ERROR_MEMORY;
+        goto cleanup;
+    }
 
-    fread(buffer, 1, size, fp);
+    size_t readsz = fread(buffer, 1, size, fp);
+    if (readsz != size) {
+       outcome = CSV_ERROR_READ_SIZE;
+       goto cleanup;
+    }
 
     char *token = buffer;
     *position = 0;
@@ -53,8 +65,8 @@ const char *parse_csv(FILE *fp, int board[9][9], unsigned long *position, int co
         for (int x = 0; x < 9; x++) {
             coords[0] = x; coords[1] = y;
             if (token == NULL) {
-                free(buffer);
-                return ERR_UNEXPECTED_END;
+                outcome = CSV_ERROR_END;
+                goto cleanup;
             }
 
             // Find delimiter.
@@ -73,14 +85,14 @@ const char *parse_csv(FILE *fp, int board[9][9], unsigned long *position, int co
             char *endptr;
             long int num = strtol(token, &endptr, 10);
             if (!isonlyspace(endptr)) {
-                free(buffer);
-                return ERR_CONVERSION_ERROR;
+                outcome = CSV_ERROR_CONVERSION;
+                goto cleanup;
             }
 
             // Make sure it's within the valid range.
             if (num < 0 || num > 9) {
-                free(buffer);
-                return ERR_ERANGE;
+                outcome = CSV_ERROR_RANGE;
+                goto cleanup;
             }
 
             // Store the number.
@@ -103,9 +115,11 @@ const char *parse_csv(FILE *fp, int board[9][9], unsigned long *position, int co
     // the user assume that the input is correct. This error can be ignored by
     // the caller.
     if (!isonlyspace(buffer + *position + 1)) {
-        free(buffer);
-        return ERR_TRAILING_DATA;
+        outcome = CSV_ERROR_TRAILING_DATA;
     }
-    free(buffer);
-    return NULL;
+
+    // Clean up and return outcome;
+    cleanup:
+        free(buffer);
+        return outcome;
 }

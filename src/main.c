@@ -28,12 +28,12 @@ int main(int argc, char *argv[]) {
 
     unsigned long position;
     int coords[2];
-    char const *errstring = parse_csv(fp, board, &position, coords);
-    if (errstring != NULL) {
+    csv_error csverr = parse_csv(fp, board, &position, coords);
+    if (csverr != CSV_SUCCESS) {
         if (fp != stderr) {
             fclose(fp);
         }
-        fprintf(stderr, "%s\n", errstring);
+        fprintf(stderr, "error while parsing CSV: %s\n", get_csv_error(csverr));
         return 1;
     }
 
